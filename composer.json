@@ -1,0 +1,23 @@
+{
+    "name": "thedjnk/mcumgr",
+    "type": "library",
+    "license": "Apache-2.0",
+    "authors": [
+        {
+            "name": "Jamie M.",
+            "homepage": "https://github.com/thedjnK/MCUmgrPHP"
+        }
+    ],
+    "require": {
+        "php": ">=8.0",
+        "spomky-labs/cbor-php": "^3.1",
+        "react/event-loop": "^1.2",
+        "react/promise": "^3.2",
+        "php-mqtt/client": "^2.1"
+    },
+    "autoload": {
+        "psr-4": {
+            "MCUmgr\\": "src/"
+        }
+    }
+}
