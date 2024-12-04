@@ -11,6 +11,8 @@ MCUmgrPHP is a cross-platform MCUmgr library for PHP, designed for issuing comma
 ## Features
 
 * Shares same base and class implementations as MCUmgr plugin from AuTerm https://github.com/thedjnK/AuTerm/
+* Supports transports:
+  - LoRaWAN
 * Supports MCUmgr groups:
   - Image management
   - Filesystem management
