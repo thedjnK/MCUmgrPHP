@@ -24,3 +24,7 @@ MCUmgrPHP is a cross-platform MCUmgr library for PHP, designed for issuing comma
 ## Help and contributing
 
 Users are welcome to open issues and submit pull requests to have features merged. PRs on github should target the `main` branch, PRs on the internal git server should target the `develop` branch.
+
+## License
+
+MCUmgrPHP is released under the [Apache 2.0 license](https://github.com/thedjnK/MCUmgrPHP/blob/master/LICENSE).
