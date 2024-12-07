@@ -28,7 +28,7 @@ use React\Promise\Deferred;
 
 class smp_processor
 {
-	private $sequence = 1;
+	private $sequence = 0;
 	private $transport = NULL;
 	private $last_message = NULL;
 	private $last_message_version_check = false;
