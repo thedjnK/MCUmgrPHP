@@ -105,13 +105,37 @@ class smp_group_os extends smp_group
 	public function start_task_stats()
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_TASK_STATS);
-		return $this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true);
+		$this->mode = smp_group_os::MODE_TASK_STATS;
+
+		if ($this->check_message_before_send($this->message) == false)
+		{
+			$this->cleanup();
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_TOO_LARGE));
+		}
+		else
+		{
+			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then(\Closure::fromCallable([$this, 'parse_task_stats_response']), \Closure::fromCallable([$this, 'parse_failure']));
+		}
+
+		return $this->active_promise->promise();
 	}
 
 	public function start_memory_pool()
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_MEMORY_POOL);
-		return $this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true);
+		$this->mode = smp_group_os::MODE_MEMORY_POOL;
+
+		if ($this->check_message_before_send($this->message) == false)
+		{
+			$this->cleanup();
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_TOO_LARGE));
+		}
+		else
+		{
+			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then(\Closure::fromCallable([$this, 'parse_memory_pool_response']), \Closure::fromCallable([$this, 'parse_failure']));
+		}
+
+		return $this->active_promise->promise();
 	}
 
 	public function start_reset($force = false): \React\Promise\Promise
@@ -129,11 +153,12 @@ class smp_group_os extends smp_group
 
 		if ($this->check_message_before_send($this->message) == false)
 		{
+			$this->cleanup();
 			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_TOO_LARGE));
 		}
 		else
 		{
-			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then(function($abc) {echo $abc.'MEIN'."\n"; $this->active_promise->resolve(0);}, function ($abc) {$this->active_promise->reject($abc);});
+			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then($this->active_promise->resolve(0), \Closure::fromCallable([$this, 'parse_failure']));
 		}
 
 		return $this->active_promise->promise();
@@ -142,7 +167,19 @@ class smp_group_os extends smp_group
 	public function start_mcumgr_parameters()
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_MCUMGR_PARAMETERS);
-		return $this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true);
+		$this->mode = smp_group_os::MODE_MCUMGR_PARAMETERS;
+
+		if ($this->check_message_before_send($this->message) == false)
+		{
+			$this->cleanup();
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_TOO_LARGE));
+		}
+		else
+		{
+			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then(\Closure::fromCallable([$this, 'parse_mcumgr_parameters_response']), \Closure::fromCallable([$this, 'parse_failure']));
+		}
+
+		return $this->active_promise->promise();
 	}
 
 	public function start_os_application_info($format = '')
@@ -156,20 +193,62 @@ class smp_group_os extends smp_group
 			);
 		}
 
-		return $this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true);
+		$this->mode = smp_group_os::MODE_OS_APPLICATION_INFO;
+
+		if ($this->check_message_before_send($this->message) == false)
+		{
+			$this->cleanup();
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_TOO_LARGE));
+		}
+		else
+		{
+			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then(\Closure::fromCallable([$this, 'parse_os_application_info_response']), \Closure::fromCallable([$this, 'parse_failure']));
+		}
+
+		return $this->active_promise->promise();
 	}
 
 	public function start_date_time_get()
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_DATE_TIME);
-		return $this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true);
+		$this->mode = smp_group_os::MODE_DATE_TIME_GET;
+
+		if ($this->check_message_before_send($this->message) == false)
+		{
+			$this->cleanup();
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_TOO_LARGE));
+		}
+		else
+		{
+			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then(\Closure::fromCallable([$this, 'parse_date_time_get_response']), \Closure::fromCallable([$this, 'parse_failure']));
+		}
+
+		return $this->active_promise->promise();
 	}
 
-//	public function start_date_time_set($date_time)
-//	{
-//		$this->setup(smp_message::SMP_OP_WRITE, smp_group_os::COMMAND_DATE_TIME);
-//		return $this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true);
-//	}
+	public function start_date_time_set($date_time)
+	{
+		$this->setup(smp_message::SMP_OP_WRITE, smp_group_os::COMMAND_DATE_TIME);
+
+//TODO: support for microseconds: $date_time->format('Y-m-d\\TH:i:s.u')
+		$this->message->contents()->add(
+			TextStringObject::create('datetime'), TextStringObject::create($date_time->format('Y-m-d\\TH:i:s'))
+		);
+
+		$this->mode = smp_group_os::MODE_DATE_TIME_SET;
+
+		if ($this->check_message_before_send($this->message) == false)
+		{
+			$this->cleanup();
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_TOO_LARGE));
+		}
+		else
+		{
+			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then($this->active_promise->resolve(0), \Closure::fromCallable([$this, 'parse_failure']));
+		}
+
+		return $this->active_promise->promise();
+	}
 
 	public function start_bootloader_info($query = 'bootloader')
 	{
@@ -179,7 +258,19 @@ class smp_group_os extends smp_group
 			TextStringObject::create('query'), TextStringObject::create($query)
 		);
 
-		return $this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true);
+		$this->mode = smp_group_os::MODE_BOOTLOADER_INFO;
+
+		if ($this->check_message_before_send($this->message) == false)
+		{
+			$this->cleanup();
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_TOO_LARGE));
+		}
+		else
+		{
+			$this->processor->send($this->message, $this->smp_timeout, $this->smp_retries, true)->then(\Closure::fromCallable([$this, 'parse_bootloader_info_response']), \Closure::fromCallable([$this, 'parse_failure']));
+		}
+
+		return $this->active_promise->promise();
 	}
 
 	private function parse_failure($error)
@@ -194,6 +285,90 @@ class smp_group_os extends smp_group
 		if (isset($cbor_data['r']))
 		{
 			$this->active_promise->resolve($cbor_data['r']);
+		}
+		else
+		{
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_RESPONSE_NOT_VALID));
+		}
+	}
+
+	private function parse_task_stats_response($message)
+	{
+		$cbor_data = $message->contents()->normalize();
+
+		if (isset($cbor_data['tasks']))
+		{
+			$this->active_promise->resolve($cbor_data['tasks']);
+		}
+		else
+		{
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_RESPONSE_NOT_VALID));
+		}
+	}
+
+	private function parse_memory_pool_response($message)
+	{
+		$cbor_data = $message->contents()->normalize();
+
+		if (count($cbor_data) > 0)
+		{
+			$this->active_promise->resolve($cbor_data);
+		}
+		else
+		{
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_RESPONSE_NOT_VALID));
+		}
+	}
+
+	private function parse_date_time_get_response($message)
+	{
+		$cbor_data = $message->contents()->normalize();
+
+		if (isset($cbor_data['datetime']))
+		{
+			$this->active_promise->resolve(new DateTime($cbor_data['datetime']));
+		}
+		else
+		{
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_RESPONSE_NOT_VALID));
+		}
+	}
+
+	private function parse_mcumgr_parameters_response($message)
+	{
+		$cbor_data = $message->contents()->normalize();
+
+		if (isset($cbor_data['buf_size']) && isset($cbor_data['buf_count']))
+		{
+			$this->active_promise->resolve($cbor_data);
+		}
+		else
+		{
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_RESPONSE_NOT_VALID));
+		}
+	}
+
+	private function parse_os_application_info_response($message)
+	{
+		$cbor_data = $message->contents()->normalize();
+
+		if (isset($cbor_data['output']))
+		{
+			$this->active_promise->resolve($cbor_data['output']);
+		}
+		else
+		{
+			$this->active_promise->reject(smp_transport::error(smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_RESPONSE_NOT_VALID));
+		}
+	}
+
+	private function parse_bootloader_info_response($message)
+	{
+		$cbor_data = $message->contents()->normalize();
+
+		if (count($cbor_data) > 0)
+		{
+			$this->active_promise->resolve($cbor_data);
 		}
 		else
 		{

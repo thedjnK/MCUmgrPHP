@@ -48,6 +48,10 @@ class smp_processor
 		{
 			$transport_error = smp_transport::SMP_TRANSPORT_ERROR_PROCESSOR_BUSY;
 		}
+		else if ($transport->is_connected() == 0)
+		{
+			$transport_error = smp_transport::SMP_TRANSPORT_ERROR_NOT_CONNECTED;
+		}
 
 		if ($transport_error == smp_transport::SMP_TRANSPORT_ERROR_OK)
 		{
