@@ -45,12 +45,11 @@ abstract class smp_group
 	protected $smp_user_data;
 	protected $mode;
 	protected $active_promise = NULL;
-	protected $error_lookup = NULL;
 
 	function __construct(&$processor, $group_name, $group_id)
 	{
 		$this->processor = &$processor;
-		smp_error::register_error_lookup_function($group_id, $this->error_lookup);
+		smp_error::register_error_lookup_function($group_id, __NAMESPACE__.'\\smp_group_'.$group_name);
 		$this->name = $group_name;
 	}
 
@@ -67,7 +66,14 @@ abstract class smp_group
 
 	static public function lookup_error($rc): ?string
 	{
-		if (!is_null($this->error_lookup) && isset($this->error_lookup[$rc]))
+		if ($rc == smp_error::SMP_ERROR_EOK || $rc == smp_error::SMP_ERROR_EUNKNOWN)
+		{
+			return smp_error::error_lookup[$rc][1];
+		}
+
+		$rc -= smp_error::SMP_GROUP_ERROR_OFFSET;
+
+		if (isset($this->error_lookup[$rc]))
 		{
 			return $this->error_lookup[$rc][1];
 		}
@@ -77,7 +83,14 @@ abstract class smp_group
 
 	public function lookup_error_define($rc): ?string
 	{
-		if (!is_null($this->error_lookup) && isset($this->error_lookup[$rc]))
+		if ($rc == smp_error::SMP_ERROR_EOK || $rc == smp_error::SMP_ERROR_EUNKNOWN)
+		{
+			return smp_error::error_lookup[$rc][0];
+		}
+
+		$rc -= smp_error::SMP_GROUP_ERROR_OFFSET;
+
+		if (isset($this->error_lookup[$rc]))
 		{
 			return $this->error_lookup[$rc][0];
 		}
@@ -85,9 +98,16 @@ abstract class smp_group
 		return NULL;
 	}
 
-	public function lookup_error_full($rc): array
+	public function lookup_error_full($rc): ?array
 	{
-		if (!is_null($this->error_lookup) && isset($this->error_lookup[$rc]))
+		if ($rc == smp_error::SMP_ERROR_EOK || $rc == smp_error::SMP_ERROR_EUNKNOWN)
+		{
+			return smp_error::error_lookup[$rc];
+		}
+
+		$rc -= smp_error::SMP_GROUP_ERROR_OFFSET;
+
+		if (isset($this->error_lookup[$rc]))
 		{
 			return $this->error_lookup[$rc];
 		}

@@ -62,14 +62,14 @@ class smp_group_os extends smp_group
 	const COMMAND_OS_APPLICATION_INFO = 7;
 	const COMMAND_BOOTLOADER_INFO = 8;
 
-	protected $error_lookup = array(
+	public const error_lookup = array(
 		['INVALID_FORMAT', 'The provided format value is not valid'],
 		['QUERY_YIELDS_NO_ANSWER', 'Query was not recognized'],
 	);
 
 	function __construct(&$processor)
 	{
-		parent::__construct($processor, "OS", smp_group::SMP_GROUP_ID_OS);
+		parent::__construct($processor, "os", smp_group::SMP_GROUP_ID_OS);
 		$this->mode = smp_group_os::MODE_IDLE;
 	}
 

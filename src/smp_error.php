@@ -29,37 +29,27 @@ class smp_error extends \Exception
 	public const SMP_ERROR_RC = 1;
 	public const SMP_ERROR_ERR = 2;
 
-	private const SMP_RC_ERROR_EOK = 0;
-	private const SMP_RC_ERROR_EUNKNOWN = 1;
-	private const SMP_RC_ERROR_ENOMEM = 2;
-	private const SMP_RC_ERROR_EINVAL = 3;
-	private const SMP_RC_ERROR_ETIMEOUT = 4;
-	private const SMP_RC_ERROR_ENOENT = 5;
-	private const SMP_RC_ERROR_EBADSTATE = 6;
-	private const SMP_RC_ERROR_EMSGSIZE = 7;
-	private const SMP_RC_ERROR_ENOTSUP = 8;
-	private const SMP_RC_ERROR_ECORRUPT = 9;
-	private const SMP_RC_ERROR_EBUSY = 10;
-	private const SMP_RC_ERROR_EACCESSDENIED = 11;
-	private const SMP_RC_ERROR_UNSUPPORTED_TOO_OLD = 12;
-	private const SMP_RC_ERROR_UNSUPPORTED_TOO_NEW = 13;
-
-	static private $rc_error_table = array(
-		smp_error::SMP_RC_ERROR_EOK => ['EOK', 'No error'],
-		smp_error::SMP_RC_ERROR_EUNKNOWN => ['EUNKNOWN', 'Unknown error'],
-		smp_error::SMP_RC_ERROR_ENOMEM => ['ENOMEM', 'Insufficient memory'],
-		smp_error::SMP_RC_ERROR_EINVAL => ['EINVAL', 'Error in input value'],
-		smp_error::SMP_RC_ERROR_ETIMEOUT => ['ETIMEOUT', 'Operation timed out'],
-		smp_error::SMP_RC_ERROR_ENOENT => ['ENOENT', 'No such file/entry'],
-		smp_error::SMP_RC_ERROR_EBADSTATE => ['EBADSTATE', 'Current state disallows command'],
-		smp_error::SMP_RC_ERROR_EMSGSIZE => ['EMSGSIZE', 'Response too large'],
-		smp_error::SMP_RC_ERROR_ENOTSUP => ['ENOTSUP', 'Command not supported'],
-		smp_error::SMP_RC_ERROR_ECORRUPT => ['ECORRUPT', 'Corrupt'],
-		smp_error::SMP_RC_ERROR_EBUSY => ['EBUSY', 'Command blocked by processing of other command'],
-		smp_error::SMP_RC_ERROR_EACCESSDENIED => ['EACCESSDENIED', 'Access to specific function, command or resource denied'],
-		smp_error::SMP_RC_ERROR_UNSUPPORTED_TOO_OLD => ['UNSUPPORTED_TOO_OLD', 'Requested SMP MCUmgr protocol version is not supported (too old)'],
-		smp_error::SMP_RC_ERROR_UNSUPPORTED_TOO_NEW => ['UNSUPPORTED_TOO_NEW', 'Requested SMP MCUmgr protocol version is not supported (too new)']
+	public const error_lookup = array(
+		['EOK', 'No error'],
+		['EUNKNOWN', 'Unknown error'],
+		['ENOMEM', 'Insufficient memory'],
+		['EINVAL', 'Error in input value'],
+		['ETIMEOUT', 'Operation timed out'],
+		['ENOENT', 'No such file/entry'],
+		['EBADSTATE', 'Current state disallows command'],
+		['EMSGSIZE', 'Response too large'],
+		['ENOTSUP', 'Command not supported'],
+		['ECORRUPT', 'Corrupt'],
+		['EBUSY', 'Command blocked by processing of other command'],
+		['EACCESSDENIED', 'Access to specific function, command or resource denied'],
+		['UNSUPPORTED_TOO_OLD', 'Requested SMP MCUmgr protocol version is not supported (too old)'],
+		['UNSUPPORTED_TOO_NEW', 'Requested SMP MCUmgr protocol version is not supported (too new)']
 	);
+
+	public const SMP_ERROR_EOK = 0;
+	public const SMP_ERROR_EUNKNOWN = 1;
+
+	public const SMP_GROUP_ERROR_OFFSET = 2;
 
 	private $type = smp_error::SMP_ERROR_NONE;
 	private $group = 0;
@@ -130,11 +120,11 @@ class smp_error extends \Exception
 
 	static function lookup_error($type, $group, $rc): ?string
 	{
-		if ($type == smp_error::SMP_ERROR_RC)
+		if ($type == smp_error::SMP_ERROR_RC || ($type == smp_error::SMP_ERROR_ERR && ($rc == smp_error::SMP_ERROR_EOK || $rc == smp_error::SMP_ERROR_EUNKNOWN)))
 		{
-			if (isset(smp_error::$rc_error_table[$rc]))
+			if (isset(smp_error::$error_lookup[$rc]))
 			{
-				return smp_error::$rc_error_table[$rc][1];
+				return smp_error::$error_lookup[$rc][1];
 			}
 		}
 		else if ($type == smp_error::SMP_ERROR_ERR)
@@ -143,7 +133,7 @@ class smp_error extends \Exception
 			{
 				if (isset(smp_error::$error_lookup_functions[$group][$rc]))
 				{
-					return smp_error::$error_lookup_functions[$group][$rc][1];
+					return (smp_error::$error_lookup_functions[$group])::error_lookup[($rc - smp_error::SMP_GROUP_ERROR_OFFSET)][1];
 				}
 			}
 		}
@@ -153,11 +143,11 @@ class smp_error extends \Exception
 
 	static function lookup_error_full($type, $group, $rc): ?array
 	{
-		if ($type == smp_error::SMP_ERROR_RC)
+		if ($type == smp_error::SMP_ERROR_RC || ($type == smp_error::SMP_ERROR_ERR && ($rc == smp_error::SMP_ERROR_EOK || $rc == smp_error::SMP_ERROR_EUNKNOWN)))
 		{
-			if (isset(smp_error::$rc_error_table[$rc]))
+			if (isset(smp_error::$error_lookup[$rc]))
 			{
-				return smp_error::$rc_error_table[$rc];
+				return smp_error::$error_lookup[$rc];
 			}
 		}
 		else if ($type == smp_error::SMP_ERROR_ERR)
@@ -166,7 +156,8 @@ class smp_error extends \Exception
 			{
 				if (isset(smp_error::$error_lookup_functions[$group][$rc]))
 				{
-					return smp_error::$error_lookup_functions[$group][$rc];
+					return (smp_error::$error_lookup_functions[$group])::error_lookup[($rc - smp_error::SMP_GROUP_ERROR_OFFSET)];
+
 				}
 			}
 		}
