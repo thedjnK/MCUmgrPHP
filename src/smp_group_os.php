@@ -147,6 +147,7 @@ class smp_group_os extends smp_group
 			$this->message->contents()->add(
 				TextStringObject::create('force'), TrueObject::create()
 			);
+			$this->message->end_message();
 		}
 
 		$this->mode = smp_group_os::MODE_RESET;
@@ -191,6 +192,7 @@ class smp_group_os extends smp_group
 			$this->message->contents()->add(
 				TextStringObject::create('format'), TextStringObject::create($format)
 			);
+			$this->message->end_message();
 		}
 
 		$this->mode = smp_group_os::MODE_OS_APPLICATION_INFO;
@@ -235,6 +237,7 @@ class smp_group_os extends smp_group
 			TextStringObject::create('datetime'), TextStringObject::create($date_time->format('Y-m-d\\TH:i:s'))
 		);
 
+		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_DATE_TIME_SET;
 
 		if ($this->check_message_before_send($this->message) == false)
@@ -258,6 +261,7 @@ class smp_group_os extends smp_group
 			TextStringObject::create('query'), TextStringObject::create($query)
 		);
 
+		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_BOOTLOADER_INFO;
 
 		if ($this->check_message_before_send($this->message) == false)

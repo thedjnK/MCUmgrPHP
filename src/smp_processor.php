@@ -28,7 +28,7 @@ use React\Promise\Deferred;
 
 class smp_processor
 {
-	private $sequence = 0;
+	private $sequence = 1;
 	private $transport = NULL;
 	private $last_message = NULL;
 	private $last_message_version_check = false;
@@ -48,7 +48,7 @@ class smp_processor
 		{
 			$transport_error = smp_transport::SMP_TRANSPORT_ERROR_PROCESSOR_BUSY;
 		}
-		else if ($transport->is_connected() == 0)
+		else if ($this->transport->is_connected() == 0)
 		{
 			$transport_error = smp_transport::SMP_TRANSPORT_ERROR_NOT_CONNECTED;
 		}

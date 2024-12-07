@@ -67,7 +67,7 @@ abstract class smp_transport
 
 	public static function error($error_code)
 	{
-		return new RuntimeException(smp_transport::to_error_string($error_code), $error_code);
+		return new \RuntimeException(smp_transport::to_error_string($error_code), $error_code);
 	}
 
 	public function connect(): int
