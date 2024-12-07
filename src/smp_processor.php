@@ -65,12 +65,19 @@ class smp_processor
 			$this->repeat_times = $repeats;
 			$this->busy = true;
 
-			$transport_error = $this->transport->send($message);
-
-			if ($transport_error == smp_transport::SMP_TRANSPORT_ERROR_OK)
+			if ($message->is_valid())
 			{
-				++$this->sequence;
-				$this->transport->receive($timeout_ms)->then([$this, 'message_received'], [$this, 'message_timeout']);
+				$transport_error = $this->transport->send($message);
+
+				if ($transport_error == smp_transport::SMP_TRANSPORT_ERROR_OK)
+				{
+					++$this->sequence;
+					$this->transport->receive($timeout_ms)->then([$this, 'message_received'], [$this, 'message_timeout']);
+				}
+			}
+			else
+			{
+				$transport_error = smp_transport::SMP_TRANSPORT_ERROR_MESSAGE_NOT_VALID;
 			}
 		}
 

@@ -87,7 +87,6 @@ class smp_group_os extends smp_group
 			TextStringObject::create('d'), TextStringObject::create($data)
 		);
 		$this->message->end_message();
-
 		$this->mode = smp_group_os::MODE_ECHO;
 
 		if ($this->check_message_before_send($this->message) == false)
@@ -105,6 +104,7 @@ class smp_group_os extends smp_group
 	public function start_task_stats()
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_TASK_STATS);
+		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_TASK_STATS;
 
 		if ($this->check_message_before_send($this->message) == false)
@@ -123,6 +123,7 @@ class smp_group_os extends smp_group
 	public function start_memory_pool()
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_MEMORY_POOL);
+		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_MEMORY_POOL;
 
 		if ($this->check_message_before_send($this->message) == false)
@@ -147,9 +148,9 @@ class smp_group_os extends smp_group
 			$this->message->contents()->add(
 				TextStringObject::create('force'), TrueObject::create()
 			);
-			$this->message->end_message();
 		}
 
+		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_RESET;
 
 		if ($this->check_message_before_send($this->message) == false)
@@ -168,6 +169,7 @@ class smp_group_os extends smp_group
 	public function start_mcumgr_parameters()
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_MCUMGR_PARAMETERS);
+		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_MCUMGR_PARAMETERS;
 
 		if ($this->check_message_before_send($this->message) == false)
@@ -192,9 +194,9 @@ class smp_group_os extends smp_group
 			$this->message->contents()->add(
 				TextStringObject::create('format'), TextStringObject::create($format)
 			);
-			$this->message->end_message();
 		}
 
+		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_OS_APPLICATION_INFO;
 
 		if ($this->check_message_before_send($this->message) == false)
@@ -213,6 +215,7 @@ class smp_group_os extends smp_group
 	public function start_date_time_get()
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_DATE_TIME);
+		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_DATE_TIME_GET;
 
 		if ($this->check_message_before_send($this->message) == false)
@@ -231,12 +234,10 @@ class smp_group_os extends smp_group
 	public function start_date_time_set($date_time)
 	{
 		$this->setup(smp_message::SMP_OP_WRITE, smp_group_os::COMMAND_DATE_TIME);
-
 //TODO: support for microseconds: $date_time->format('Y-m-d\\TH:i:s.u')
 		$this->message->contents()->add(
 			TextStringObject::create('datetime'), TextStringObject::create($date_time->format('Y-m-d\\TH:i:s'))
 		);
-
 		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_DATE_TIME_SET;
 
@@ -256,11 +257,9 @@ class smp_group_os extends smp_group
 	public function start_bootloader_info($query = 'bootloader')
 	{
 		$this->setup(smp_message::SMP_OP_READ, smp_group_os::COMMAND_BOOTLOADER_INFO);
-
 		$this->message->contents()->add(
 			TextStringObject::create('query'), TextStringObject::create($query)
 		);
-
 		$this->message->end_message();
 		$this->mode = smp_group_os::MODE_BOOTLOADER_INFO;
 
