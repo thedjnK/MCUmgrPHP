@@ -307,7 +307,7 @@ class smp_transport_uart extends smp_transport
 		{
 			try
 			{
-//				$this->uart->ensureDeviceOpen();
+				$this->uart->ensureDeviceOpen();
 				return 1;
 			}
 			catch (Exception $e)
@@ -372,8 +372,9 @@ end:
 
 	public function receive($max_wait_ms = 0): \React\Promise\Promise
 	{
+		//PHP after 14+ years still has an open bug report to support blocking with timeout for streams, it still does not work on windows, it still does not work on linux, therefore have a 250ms pause between read attempts to avoid chewing up the CPU for 100% doing literally nothing because we are forced to use polling...
 		$deferred = new Deferred();
-		$response = $this->uart->read_function(($max_wait_ms / 1000));
+		$response = $this->uart->read_function(($max_wait_ms / 1000), 1024, 250000);
 
 		if (!is_null($response) && $response->is_valid() == true)
 		{
