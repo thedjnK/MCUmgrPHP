@@ -8,12 +8,19 @@
             "homepage": "https://github.com/thedjnK/MCUmgrPHP"
         }
     ],
+    "repositories": [
+        {
+            "type": "vcs",
+            "url": "https://github.com/thedjnk/serialport"
+        }
+    ],
     "require": {
-        "php": ">=8.0",
+        "php": ">=7.0",
         "spomky-labs/cbor-php": "^3.1",
         "react/event-loop": "^1.2",
         "react/promise": "^3.2",
-        "php-mqtt/client": "^2.1"
+        "php-mqtt/client": "^2.1",
+        "thedjnk/serialport": "dev-main"
     },
     "autoload": {
         "psr-4": {
