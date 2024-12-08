@@ -153,7 +153,7 @@ class smp_message
 			return count($this->buffer);
 		}
 
-		return count($this->buffer) + sizeof((string)$this->cbor);
+		return count($this->buffer) + strlen((string)$this->cbor);
 	}
 
 	public function is_valid(): bool
