@@ -282,8 +282,7 @@ class smp_transport_uart extends smp_transport
 	public function connect(): int
 	{
 		$uart_configuration = new TTYConfigure();
-		$uart_configuration->removeOption('9600');
-		$uart_configuration->setOption($this->config_baud);
+		$uart_configuration->setOption('baud', $this->config_baud);
 		$this->uart = new SerialPort(new uart_message_checker(), $uart_configuration);
 		$this->uart->open($this->config_port);
 		return smp_transport::SMP_TRANSPORT_ERROR_OK;
@@ -374,7 +373,7 @@ end:
 	{
 		//PHP after 14+ years still has an open bug report to support blocking with timeout for streams, it still does not work on windows, it still does not work on linux, therefore have a 250ms pause between read attempts to avoid chewing up the CPU for 100% doing literally nothing because we are forced to use polling...
 		$deferred = new Deferred();
-		$response = $this->uart->read_function(($max_wait_ms / 1000), 1024, 250000);
+		$response = $this->uart->read_function(($max_wait_ms / 1000), 1024, 90000);
 
 		if (!is_null($response) && $response->is_valid() == true)
 		{
